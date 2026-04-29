@@ -34,6 +34,9 @@ jobs:
       - name: Show Perl configuration
         run: perl -V
 
+      - name: Bootstrap configure-time dependencies
+        run: cpanm --notest ExtUtils::MakeMaker Alien::Build::MM
+
       - name: Install declared dependencies
         run: cpanm --installdeps --notest --verbose .
 
