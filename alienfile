@@ -1,18 +1,24 @@
 use alienfile;
 
 # Alien::ckdl always installs from source ("share").
-# Tracks the upstream "main" branch of https://github.com/tjol/ckdl
+# Pinned to a specific upstream commit of https://github.com/tjol/ckdl
+# so builds are reproducible. Bump $CKDL_COMMIT to roll forward.
 # Built statically; ckdl's CMake build is intentionally bypassed so we
 # do not pull in Python/Cython, the C++ bindings, or the upstream test
 # suite.
 probe sub { 'share' };
 
-share {
-    start_url 'https://github.com/tjol/ckdl/archive/refs/heads/main.tar.gz';
+# Pinned upstream commit (tjol/ckdl). Update both the SHA and the short
+# version tag together when bumping.
+my $CKDL_COMMIT  = 'c9c33fe64446287215e80705545139d92a48f829';
+my $CKDL_VERSION = '0.0.0-' . substr($CKDL_COMMIT, 0, 12);
 
-    # The "main" branch isn't a real version; we tag it with the date of fetch
-    # so that Alien::Build has something to chew on.
-    plugin 'Fetch::HTTPTiny' => 'https://github.com/tjol/ckdl/archive/refs/heads/main.tar.gz';
+share {
+    my $tarball = "https://github.com/tjol/ckdl/archive/$CKDL_COMMIT.tar.gz";
+
+    start_url $tarball;
+
+    plugin 'Fetch::HTTPTiny' => $tarball;
     plugin 'Decode::HTML'    => ();
     plugin 'Extract'         => 'tar.gz';
 
@@ -20,11 +26,9 @@ share {
         fetch => sub {
             my ($orig, $build, @args) = @_;
             my $res = $orig->($build, @args);
-            # Stamp every fetch as version "main-YYYYMMDD" so version comparisons
-            # never block reinstalls.
-            my @t = (gmtime)[5, 4, 3];
-            $res->{version} = sprintf 'main-%04d%02d%02d',
-                $t[0] + 1900, $t[1] + 1, $t[2];
+            # GitHub's commit tarballs carry no upstream version metadata;
+            # stamp the pinned commit so Alien::Build has something stable.
+            $res->{version} = $CKDL_VERSION;
             $res;
         },
     );

@@ -43,10 +43,12 @@ make install
 ```
 
 The build fetches
-`https://github.com/tjol/ckdl/archive/refs/heads/main.tar.gz`, extracts
-it, and compiles the static library into the Alien share directory. Each
-fetch is stamped with a synthetic version of the form `main-YYYYMMDD` so
-that `Alien::Build` does not skip a reinstall when upstream changes.
+`https://github.com/tjol/ckdl/archive/<SHA>.tar.gz`, extracts it, and
+compiles the static library into the Alien share directory. The pinned
+commit is set via `$CKDL_COMMIT` in `alienfile`, so builds are
+reproducible: the source is pinned, not floating. Each fetch is stamped
+with a synthetic version of the form `0.0.0-<first-12-chars-of-sha>`.
+To roll forward, edit `$CKDL_COMMIT` in `alienfile`.
 
 ## Using it from Perl
 
@@ -90,13 +92,14 @@ template if you need to verify the Alien works on a target platform.
 
 ## Versioning
 
-This Alien tracks the upstream `main` branch rather than a tagged
-release. The Perl distribution version (in `lib/Alien/ckdl.pm`)
-identifies the Alien itself; the C library version it produces is
-recorded as `main-YYYYMMDD` based on the day of the build.
+This Alien pins a specific upstream commit of `tjol/ckdl` rather than
+tracking a branch or a tagged release. The Perl distribution version
+(in `lib/Alien/ckdl.pm`) identifies the Alien itself; the C library
+version it produces is recorded as `0.0.0-<first-12-chars-of-sha>`,
+where the SHA is the value of `$CKDL_COMMIT` in `alienfile`.
 
-If you need a pinned upstream commit, fork this distribution and edit
-the `start_url` and `Fetch::HTTPTiny` arguments in `alienfile`.
+To move to a different upstream commit, edit `$CKDL_COMMIT` in
+`alienfile` and reinstall.
 
 ## Troubleshooting
 
