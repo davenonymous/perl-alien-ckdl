@@ -3,6 +3,11 @@ use warnings;
 use ExtUtils::MakeMaker;
 use Alien::Build::MM;
 
+# A final, deprecated release: Text::KDL::XS 0.003 bundles ckdl itself.
+# The notice is informational; the build still works for the older
+# Text::KDL::XS releases that depend on this Alien.
+warn "Alien::ckdl is deprecated: Text::KDL::XS 0.003 and later bundle ckdl and no longer need it.\n";
+
 my $abmm = Alien::Build::MM->new;
 
 WriteMakefile($abmm->mm_args(
@@ -39,6 +44,7 @@ WriteMakefile($abmm->mm_args(
             },
         },
         dynamic_config => 1,
+        x_deprecated   => 1,
     },
 ));
 
